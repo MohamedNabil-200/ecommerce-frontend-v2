@@ -67,7 +67,7 @@ const ProductsPage = () => {
           <Grid key={product.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <ProductCard
               product={product}
-              onViewDetails={(product) => navigate(`product/${product.id}`)}
+              onViewDetails={(product) => navigate(`products/${product.id}`)}
             />
           </Grid>
         ))}
