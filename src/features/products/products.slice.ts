@@ -53,6 +53,8 @@ export const productsSlice = createSlice({
   reducers: {
     setSelectedProduct: (state, action: PayloadAction<Product | null>) => {
       state.selectedProduct = action.payload;
+      state.details.loading = false;
+      state.details.error = null;
     },
   },
   extraReducers: (builder) => {
