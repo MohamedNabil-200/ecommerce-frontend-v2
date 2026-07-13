@@ -3,9 +3,9 @@ import { useAppDispatch, useAppSelector } from "../store";
 import { useNavigate } from "react-router-dom";
 import { fetchProducts } from "../features/products/products.slice";
 import {
-  selectProduct,
-  selectedProductsLoading,
-  selectedProductsError,
+  selectProductsLoading,
+  selectProductsError,
+  selectProducts,
 } from "../features/products/products.selectors";
 import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -14,9 +14,9 @@ import ProductCardSkeleton from "../components/products/ProductCardSkeleton";
 
 const ProductsPage = () => {
   const dispatch = useAppDispatch();
-  const products = useAppSelector(selectProduct);
-  const loading = useAppSelector(selectedProductsLoading);
-  const error = useAppSelector(selectedProductsError);
+  const products = useAppSelector(selectProducts);
+  const loading = useAppSelector(selectProductsLoading);
+  const error = useAppSelector(selectProductsError);
   const navigate = useNavigate();
   useEffect(() => {
     dispatch(fetchProducts());
@@ -67,7 +67,7 @@ const ProductsPage = () => {
           <Grid key={product.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <ProductCard
               product={product}
-              onViewDetails={(product) => navigate(`products/${product.id}`)}
+              onViewDetails={(product) => navigate(`/products/${product.id}`)}
             />
           </Grid>
         ))}

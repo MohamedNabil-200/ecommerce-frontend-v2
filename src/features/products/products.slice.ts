@@ -1,12 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getProducts } from "./products.api";
+import { getProductById, getProducts } from "./products.api";
 import type { Product, ProductState } from "./products.types";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState: ProductState = {
   products: [],
   selectedProduct: null,
-  loading: false,
-  error: null,
+  list: {
+    loading: false,
+    error: null,
+  },
+  details: {
+    loading: false,
+    error: null,
+  },
 };
 
 export const fetchProducts = createAsyncThunk<Product[], void>(
@@ -17,25 +25,69 @@ export const fetchProducts = createAsyncThunk<Product[], void>(
   },
 );
 
+export const fetchProductById = createAsyncThunk<
+  Product,
+  number,
+  { rejectValue: string }
+>("products/fetchProductById", async (id, { rejectWithValue }) => {
+  try {
+    return await getProductById(id);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        return rejectWithValue("Product Not Found");
+      }
+
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong",
+      );
+    }
+
+    return rejectWithValue("Unexpected error.");
+  }
+});
+
 export const productsSlice = createSlice({
   name: "products",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedProduct: (state, action: PayloadAction<Product | null>) => {
+      state.selectedProduct = action.payload;
+      state.details.loading = false;
+      state.details.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchProducts.pending, (state) => {
-      state.loading = true;
-      state.error = null;
+      state.list.loading = true;
+      state.list.error = null;
     });
     builder.addCase(fetchProducts.fulfilled, (state, action) => {
       state.products = action.payload;
-      state.loading = false;
-      state.error = null;
+      state.list.loading = false;
+      state.list.error = null;
     });
     builder.addCase(fetchProducts.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.error.message ?? "Something went wrong";
+      state.list.loading = false;
+      state.list.error = action.error.message ?? "Something went wrong";
+    });
+
+    builder.addCase(fetchProductById.pending, (state) => {
+      state.selectedProduct = null;
+      state.details.loading = true;
+      state.details.error = null;
+    });
+    builder.addCase(fetchProductById.fulfilled, (state, action) => {
+      state.selectedProduct = action.payload;
+      state.details.loading = false;
+      state.details.error = null;
+    });
+    builder.addCase(fetchProductById.rejected, (state, action) => {
+      state.details.loading = false;
+      state.details.error = action.payload ?? "Something went wrong";
     });
   },
 });
 
+export const { setSelectedProduct } = productsSlice.actions;
 export const productReducer = productsSlice.reducer;
