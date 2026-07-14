@@ -1,19 +1,19 @@
-import { Container } from "@mui/material";
+import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 const MainLayout = () => {
   return (
-    <>
+    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Navbar />
 
-      <Container maxWidth="xl" >
+      <Box component="main" sx={{ flex: 1 }}>
         <Outlet />
-      </Container>
+      </Box>
 
       <Footer />
-    </>
+    </Box>
   );
 };
 
