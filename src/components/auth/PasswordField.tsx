@@ -26,7 +26,8 @@ const PasswordField = ({
           endAdornment: (
             <InputAdornment position="end">
               <IconButton
-                aria-label="toggle password visibility"
+                aria-label={showPassword ? "Hide Password" : "Show Password"}
+                aria-pressed={showPassword}
                 onClick={() => setShowPassword((prev) => !prev)}
                 edge="end"
               >

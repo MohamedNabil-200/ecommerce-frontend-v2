@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
 
@@ -24,8 +24,9 @@ const Router = () => {
         </Route>
 
         <Route path="/auth" element={<AuthLayout />}>
-          <Route path="login" element={<LoginPage />}/>
-          <Route path="register" element={<RegisterPage />}/>
+          <Route index element={<Navigate to="login" replace />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
