@@ -1,9 +1,8 @@
 import { Link as RouterLink } from "react-router-dom";
-import { Button, Container, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 
 const WishlistEmptyState = () => {
   return (
-    <Container>
       <Stack
         spacing={3}
         sx={{
@@ -22,7 +21,6 @@ const WishlistEmptyState = () => {
           Browse Products
         </Button>
       </Stack>
-    </Container>
   );
 };
 
