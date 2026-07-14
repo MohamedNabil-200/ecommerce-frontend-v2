@@ -10,6 +10,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import AuthLayout from "../components/layout/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
+import WishlistPage from "../pages/WishlistPage";
 
 const Router = () => {
   return (
@@ -20,6 +21,7 @@ const Router = () => {
           <Route path="products" element={<ProductsPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="products/:id" element={<ProductDetailsPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
