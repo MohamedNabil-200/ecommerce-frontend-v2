@@ -51,12 +51,12 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
                 <Typography variant="h6">{product.title}</Typography>
               </Link>
               <Typography>{formatCurrency(product.price)}</Typography>
-              <Stack direction="row" spacing={1}>
-                <IconButton color="primary">
+              <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
+                <IconButton color="primary" aria-label="Decrease quantity">
                   <RemoveCircleRoundedIcon />
                 </IconButton>
                 <Typography>{quantity}</Typography>
-                <IconButton color="primary">
+                <IconButton color="primary" aria-label="Increase quantity">
                   <AddCircleOutlinedIcon />
                 </IconButton>
               </Stack>
@@ -70,7 +70,7 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
               justifyContent: "flex-end",
             }}
           >
-            <IconButton color="error">
+            <IconButton color="error" aria-label="Remove item">
               <DeleteForeverRoundedIcon />
             </IconButton>
           </Grid>
