@@ -11,6 +11,7 @@ import AuthLayout from "../components/layout/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import WishlistPage from "../pages/WishlistPage";
+import CartPage from "../pages/CartPage";
 
 const Router = () => {
   return (
@@ -22,6 +23,7 @@ const Router = () => {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="products/:id" element={<ProductDetailsPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
+          <Route path="cart" element={<CartPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
