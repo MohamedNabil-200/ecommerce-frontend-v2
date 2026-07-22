@@ -16,7 +16,11 @@ export const loginThunk = createAsyncThunk<
 >("/auth/login", async (data, { rejectWithValue }) => {
   try {
     const response = await authService.login(data);
-    authStorage.saveAuth(response);
+    try {
+      authStorage.saveAuth(response);
+    } catch (error) {
+      console.error(error);
+    }
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
