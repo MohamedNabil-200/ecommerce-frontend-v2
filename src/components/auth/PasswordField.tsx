@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
+import { IconButton, InputAdornment, TextField, type TextFieldProps } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
-type PasswordFieldProps = {
+type PasswordFieldProps = TextFieldProps & {
   name?: string;
   label?: string;
   fullWidth?: boolean;
@@ -12,6 +12,7 @@ const PasswordField = ({
   name = "password",
   label = "Password",
   fullWidth = true,
+  ...props
 }: PasswordFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,6 +22,7 @@ const PasswordField = ({
       label={label}
       type={showPassword ? "text" : "password"}
       fullWidth={fullWidth}
+      {...props}
       slotProps={{
         input: {
           endAdornment: (
