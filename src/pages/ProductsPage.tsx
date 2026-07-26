@@ -11,6 +11,8 @@ import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ProductCard from "../components/products/ProductCard";
 import ProductCardSkeleton from "../components/products/ProductCardSkeleton";
+import { selectWishlistFetched } from "../features/wishlist/wishlist.selectors";
+import { getWishlistThunk } from "../features/wishlist/wishlist.thunks";
 
 const ProductsPage = () => {
   const dispatch = useAppDispatch();
@@ -18,10 +20,17 @@ const ProductsPage = () => {
   const loading = useAppSelector(selectProductsLoading);
   const error = useAppSelector(selectProductsError);
   const navigate = useNavigate();
+  const isFetched = useAppSelector(selectWishlistFetched);
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!isFetched) {
+      dispatch(getWishlistThunk());
+    }
+  }, [dispatch, isFetched]);
   if (loading)
     return (
       <Container sx={{ py: 4 }}>

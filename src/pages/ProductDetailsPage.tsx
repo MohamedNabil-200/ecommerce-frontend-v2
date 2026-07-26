@@ -9,6 +9,10 @@ import {
   selectSelectedProduct,
 } from "../features/products/products.selectors";
 import {
+  selectIsProductInWishlist,
+  selectWishlistFetched,
+} from "../features/wishlist/wishlist.selectors";
+import {
   fetchProductById,
   setSelectedProduct,
 } from "../features/products/products.slice";
@@ -28,6 +32,12 @@ import {
   Typography,
 } from "@mui/material";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import {
+  addToWishlistThunk,
+  getWishlistThunk,
+  removeFromWishlistThunk,
+} from "../features/wishlist/wishlist.thunks";
 
 const ProductDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +49,17 @@ const ProductDetailsPage = () => {
   const selectedProduct = useAppSelector(selectSelectedProduct);
   const existingProduct = products.find((product) => product.id === productId);
   const isInStock = (selectedProduct?.stock ?? 0) > 0;
+  const isInWishlist = useAppSelector(selectIsProductInWishlist(productId));
+  const isFetched = useAppSelector(selectWishlistFetched);
+
+  const handleWishlistClick = () => {
+    if (!isFetched) return;
+    if (isInWishlist) {
+      dispatch(removeFromWishlistThunk(productId));
+    } else {
+      dispatch(addToWishlistThunk(productId));
+    }
+  };
 
   useEffect(() => {
     if (Number.isNaN(productId)) return;
@@ -48,7 +69,11 @@ const ProductDetailsPage = () => {
     } else {
       dispatch(fetchProductById(productId));
     }
-  }, [dispatch, existingProduct, productId]);
+
+    if (!isFetched) {
+      dispatch(getWishlistThunk());
+    }
+  }, [dispatch, existingProduct, productId, isFetched]);
 
   if (Number.isNaN(productId)) {
     return <Navigate to="/products" replace />;
@@ -94,7 +119,7 @@ const ProductDetailsPage = () => {
 
         <Grid size={{ xs: 12, md: 7 }}>
           <Stack spacing={2}>
-            <Typography variant="h4">{selectedProduct.title}</Typography>
+            <Typography variant="h3">{selectedProduct.title}</Typography>
             <Rating
               name="product-rating"
               value={3.5}
@@ -114,8 +139,18 @@ const ProductDetailsPage = () => {
               <Button variant="contained" disabled={!isInStock} fullWidth>
                 Add to cart
               </Button>
-              <IconButton aria-label="add to wishlist">
-                <FavoriteBorderOutlinedIcon />
+              <IconButton
+                aria-label={
+                  isInWishlist ? "Remove from wishlist" : "Add to wishlist"
+                }
+                onClick={handleWishlistClick}
+                disabled={!isFetched}
+              >
+                {isInWishlist ? (
+                  <FavoriteOutlinedIcon color="error" />
+                ) : (
+                  <FavoriteBorderOutlinedIcon />
+                )}{" "}
               </IconButton>
             </Stack>
           </Stack>

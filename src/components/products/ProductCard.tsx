@@ -5,10 +5,22 @@ import {
   CardContent,
   CardMedia,
   Chip,
+  IconButton,
   Typography,
 } from "@mui/material";
 import type { Product } from "../../features/products/products.types";
 import formatCurrency from "../../utils/formatCurrency";
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import { useAppDispatch, useAppSelector } from "../../store";
+import {
+  selectIsProductInWishlist,
+  selectWishlistFetched,
+} from "../../features/wishlist/wishlist.selectors";
+import {
+  addToWishlistThunk,
+  removeFromWishlistThunk,
+} from "../../features/wishlist/wishlist.thunks";
 
 type ProductCardProps = {
   product: Product;
@@ -16,6 +28,18 @@ type ProductCardProps = {
 };
 
 const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
+  const dispatch = useAppDispatch();
+  const isInWishlist = useAppSelector(selectIsProductInWishlist(product.id));
+  const isFetched = useAppSelector(selectWishlistFetched);
+  const handleWishlistClick = () => {
+    if (!isFetched) return;
+    if (isInWishlist) {
+      dispatch(removeFromWishlistThunk(product.id));
+    } else {
+      dispatch(addToWishlistThunk(product.id));
+    }
+  };
+
   return (
     <Card
       sx={{
@@ -56,6 +80,17 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
         >
           View Details
         </Button>
+        <IconButton
+          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+          onClick={handleWishlistClick}
+          disabled={!isFetched}
+        >
+          {isInWishlist ? (
+            <FavoriteOutlinedIcon color="error" />
+          ) : (
+            <FavoriteBorderOutlinedIcon />
+          )}
+        </IconButton>{" "}
       </CardActions>
     </Card>
   );

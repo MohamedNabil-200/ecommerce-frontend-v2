@@ -1,4 +1,5 @@
 import axios from "axios";
+import { authStorage } from "../features/auth/auth.storage";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,4 +9,14 @@ if (!API_URL) {
 
 export const api = axios.create({
   baseURL: API_URL,
+});
+
+api.interceptors.request.use((config) => {
+  const auth = authStorage.loadAuth();
+
+  if (auth?.token) {
+    config.headers.Authorization = `Bearer ${auth.token}`;
+  }
+
+  return config;
 });
