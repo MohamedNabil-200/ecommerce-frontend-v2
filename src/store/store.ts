@@ -3,6 +3,7 @@ import { initialState as authInitialState } from "../features/auth/auth.slice";
 import { configureStore } from "@reduxjs/toolkit";
 import { productReducer } from "../features/products/products.slice";
 import { authReducer } from "../features/auth/auth.slice";
+import { wishlistReducer } from "../features/wishlist/wishlist.slice";
 
 const storedAuth = authStorage.loadAuth();
 const preloadedState = storedAuth
@@ -19,6 +20,7 @@ export const store = configureStore({
   reducer: {
     products: productReducer,
     auth: authReducer,
+    wishlist: wishlistReducer
   },
   preloadedState,
 });
