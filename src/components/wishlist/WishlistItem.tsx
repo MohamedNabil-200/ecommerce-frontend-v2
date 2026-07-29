@@ -1,4 +1,4 @@
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { removeFromWishlistThunk } from "../../features/wishlist/wishlist.thunks";
 import {
   Box,
@@ -11,6 +11,11 @@ import {
 } from "@mui/material";
 import formatCurrency from "../../utils/formatCurrency";
 import type { TWishlistItem } from "../../features/wishlist/wishlist.types";
+import { addToCartThunk } from "../../features/cart/cart.thunks";
+import {
+  selectIsCartFetched,
+  selectIsProductInCart,
+} from "../../features/cart/cart.selectors";
 
 type WishlistItemProps = {
   item: TWishlistItem;
@@ -18,9 +23,17 @@ type WishlistItemProps = {
 
 const WishlistItem = ({ item }: WishlistItemProps) => {
   const dispatch = useAppDispatch();
+  const isCartFetched = useAppSelector(selectIsCartFetched);
+  const isInCart = useAppSelector(selectIsProductInCart(item.productId));
 
   const handleRemove = () => {
     dispatch(removeFromWishlistThunk(item.productId));
+  };
+
+  const handleAddToCart = () => {
+    if (!isCartFetched || isInCart) return;
+
+    dispatch(addToCartThunk(item.productId));
   };
 
   return (
@@ -57,10 +70,17 @@ const WishlistItem = ({ item }: WishlistItemProps) => {
             <Stack
               sx={{ justifyContent: "flex-end", alignItems: "end", gap: 2 }}
             >
-              <Button variant="contained" fullWidth>
+              <Button
+                aria-label="Add to cart"
+                variant="contained"
+                fullWidth
+                onClick={handleAddToCart}
+                disabled={!isCartFetched || isInCart}
+              >
                 Add to cart
               </Button>
               <Button
+                aria-label="Remove from wishlist"
                 variant="outlined"
                 color="error"
                 onClick={handleRemove}

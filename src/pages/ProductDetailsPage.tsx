@@ -38,6 +38,8 @@ import {
   getWishlistThunk,
   removeFromWishlistThunk,
 } from "../features/wishlist/wishlist.thunks";
+import { selectIsCartFetched, selectIsProductInCart } from "../features/cart/cart.selectors";
+import { addToCartThunk, getCartThunk } from "../features/cart/cart.thunks";
 
 const ProductDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,15 +52,22 @@ const ProductDetailsPage = () => {
   const existingProduct = products.find((product) => product.id === productId);
   const isInStock = (selectedProduct?.stock ?? 0) > 0;
   const isInWishlist = useAppSelector(selectIsProductInWishlist(productId));
-  const isFetched = useAppSelector(selectWishlistFetched);
+  const isWishlistFetched = useAppSelector(selectWishlistFetched);
+  const isInCart = useAppSelector(selectIsProductInCart(productId));
+  const isCartFetched = useAppSelector(selectIsCartFetched);
 
   const handleWishlistClick = () => {
-    if (!isFetched) return;
+    if (!isWishlistFetched) return;
     if (isInWishlist) {
       dispatch(removeFromWishlistThunk(productId));
     } else {
       dispatch(addToWishlistThunk(productId));
     }
+  };
+
+  const handleCartClick = () => {
+    if (!isCartFetched) return;
+    dispatch(addToCartThunk(productId));
   };
 
   useEffect(() => {
@@ -70,10 +79,14 @@ const ProductDetailsPage = () => {
       dispatch(fetchProductById(productId));
     }
 
-    if (!isFetched) {
+    if (!isWishlistFetched) {
       dispatch(getWishlistThunk());
     }
-  }, [dispatch, existingProduct, productId, isFetched]);
+
+    if (!isCartFetched) {
+      dispatch(getCartThunk());
+    }
+  }, [dispatch, existingProduct, productId, isWishlistFetched, isCartFetched]);
 
   if (Number.isNaN(productId)) {
     return <Navigate to="/products" replace />;
@@ -136,7 +149,14 @@ const ProductDetailsPage = () => {
             />
 
             <Stack direction="row" spacing={2}>
-              <Button variant="contained" disabled={!isInStock} fullWidth>
+              <Button
+                variant="contained"
+                disabled={!isInStock || !isCartFetched || isInCart}
+                fullWidth
+                onClick={handleCartClick}
+                aria-label="Add to cart"
+              >
+                {" "}
                 Add to cart
               </Button>
               <IconButton
@@ -144,7 +164,7 @@ const ProductDetailsPage = () => {
                   isInWishlist ? "Remove from wishlist" : "Add to wishlist"
                 }
                 onClick={handleWishlistClick}
-                disabled={!isFetched}
+                disabled={!isWishlistFetched}
               >
                 {isInWishlist ? (
                   <FavoriteOutlinedIcon color="error" />
