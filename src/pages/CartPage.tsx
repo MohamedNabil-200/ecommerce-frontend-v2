@@ -1,17 +1,53 @@
-import { Container, Grid, Stack, Typography } from "@mui/material";
-import { useAppSelector } from "../store";
-import { selectProducts } from "../features/products/products.selectors";
-import OrderSummaryCard from "../components/cart/OrderSummaryCard";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../store";
+import { Alert, Container, Grid, Stack, Typography } from "@mui/material";
+
 import CartItem from "../components/cart/CartItem";
 import CartEmptyState from "../components/cart/CartEmptyState";
+import OrderSummaryCard from "../components/cart/OrderSummaryCard";
+
+import { getCartThunk } from "../features/cart/cart.thunks";
+import {
+  selectIsCartFetched,
+  selectCartItems,
+  selectGetCartError,
+  selectGetCartLoading,
+} from "../features/cart/cart.selectors";
 
 const CartPage = () => {
-  const products = useAppSelector(selectProducts);
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectCartItems);
+  const isFetched = useAppSelector(selectIsCartFetched);
+  const loading = useAppSelector(selectGetCartLoading);
+  const error = useAppSelector(selectGetCartError);
 
-  // Temporary mock until cart state is implemented
-  const cartItems = products.slice(0, 0);
+  useEffect(() => {
+    if (!isFetched) {
+      dispatch(getCartThunk());
+    }
+  }, [dispatch, isFetched]);
 
-  if (cartItems.length === 0)
+  if (loading)
+    return (
+      <Container sx={{ py: 2 }}>
+        <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
+          Shopping Cart
+        </Typography>
+        <Typography>Loading Cart...</Typography>
+      </Container>
+    );
+
+  if (error && error !== "Cart is Empty")
+    return (
+      <Container sx={{ py: 2 }}>
+        <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
+          Shopping Cart
+        </Typography>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+
+  if (items.length === 0)
     return (
       <Container sx={{ py: 2 }}>
         <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
@@ -21,6 +57,12 @@ const CartPage = () => {
       </Container>
     );
 
+  const subtotal = items.reduce(
+    (sum: number, item) => sum + Number(item.product.price) * item.quantity,
+    0,
+  );
+  const shipping = subtotal > 0 ? 20 : 0;
+  const total = subtotal + shipping;
   return (
     <Container sx={{ py: 2 }}>
       <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
@@ -29,13 +71,17 @@ const CartPage = () => {
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={2}>
-            {cartItems.map((product) => (
-              <CartItem key={product.id} product={product} quantity={5} />
+            {items.map((item) => (
+              <CartItem key={item.id} item={item} />
             ))}
           </Stack>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <OrderSummaryCard subtotal={240} shipping={20} total={260} />
+          <OrderSummaryCard
+            subtotal={subtotal}
+            shipping={shipping}
+            total={total}
+          />
         </Grid>
       </Grid>
     </Container>

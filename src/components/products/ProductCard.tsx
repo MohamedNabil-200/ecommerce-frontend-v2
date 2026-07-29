@@ -1,3 +1,4 @@
+import { useAppDispatch, useAppSelector } from "../../store";
 import {
   Button,
   Card,
@@ -8,19 +9,29 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import type { Product } from "../../features/products/products.types";
-import formatCurrency from "../../utils/formatCurrency";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
-import { useAppDispatch, useAppSelector } from "../../store";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+
+import type { Product } from "../../features/products/products.types";
+import formatCurrency from "../../utils/formatCurrency";
+
 import {
   selectIsProductInWishlist,
   selectWishlistFetched,
 } from "../../features/wishlist/wishlist.selectors";
 import {
+  selectAddToCartLoading,
+  selectIsCartFetched,
+  selectIsProductInCart,
+} from "../../features/cart/cart.selectors";
+
+import {
   addToWishlistThunk,
   removeFromWishlistThunk,
 } from "../../features/wishlist/wishlist.thunks";
+import { addToCartThunk } from "../../features/cart/cart.thunks";
 
 type ProductCardProps = {
   product: Product;
@@ -30,14 +41,26 @@ type ProductCardProps = {
 const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const dispatch = useAppDispatch();
   const isInWishlist = useAppSelector(selectIsProductInWishlist(product.id));
-  const isFetched = useAppSelector(selectWishlistFetched);
+  const isWishlistFetched = useAppSelector(selectWishlistFetched);
+
+  const isInCart = useAppSelector(selectIsProductInCart(product.id));
+  const isCartFetched = useAppSelector(selectIsCartFetched);
+  const isAddingToCart = useAppSelector(selectAddToCartLoading);
+
   const handleWishlistClick = () => {
-    if (!isFetched) return;
+    if (!isWishlistFetched) return;
     if (isInWishlist) {
       dispatch(removeFromWishlistThunk(product.id));
     } else {
       dispatch(addToWishlistThunk(product.id));
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!isCartFetched || isInCart || isAddingToCart || product.stock <= 0)
+      return;
+
+    dispatch(addToCartThunk(product.id));
   };
 
   return (
@@ -83,14 +106,25 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
         <IconButton
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
           onClick={handleWishlistClick}
-          disabled={!isFetched}
+          disabled={!isWishlistFetched}
         >
           {isInWishlist ? (
             <FavoriteOutlinedIcon color="error" />
           ) : (
             <FavoriteBorderOutlinedIcon />
           )}
-        </IconButton>{" "}
+        </IconButton>
+        <IconButton
+          aria-label={isInCart ? "Product already in cart" : "Add to cart"}
+          onClick={handleAddToCart}
+          disabled={!isCartFetched || isInCart || isAddingToCart ||product.stock <= 0}
+        >
+          {isInCart ? (
+            <ShoppingCartIcon color="success" />
+          ) : (
+            <ShoppingCartOutlinedIcon />
+          )}
+        </IconButton>
       </CardActions>
     </Card>
   );

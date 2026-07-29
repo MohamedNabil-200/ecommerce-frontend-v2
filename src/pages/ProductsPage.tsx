@@ -13,6 +13,8 @@ import ProductCard from "../components/products/ProductCard";
 import ProductCardSkeleton from "../components/products/ProductCardSkeleton";
 import { selectWishlistFetched } from "../features/wishlist/wishlist.selectors";
 import { getWishlistThunk } from "../features/wishlist/wishlist.thunks";
+import { selectIsCartFetched } from "../features/cart/cart.selectors";
+import { getCartThunk } from "../features/cart/cart.thunks";
 
 const ProductsPage = () => {
   const dispatch = useAppDispatch();
@@ -20,17 +22,22 @@ const ProductsPage = () => {
   const loading = useAppSelector(selectProductsLoading);
   const error = useAppSelector(selectProductsError);
   const navigate = useNavigate();
-  const isFetched = useAppSelector(selectWishlistFetched);
+  const isWishlistFetched = useAppSelector(selectWishlistFetched);
+  const isCartFetched = useAppSelector(selectIsCartFetched);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   useEffect(() => {
-    if (!isFetched) {
+    if (!isWishlistFetched) {
       dispatch(getWishlistThunk());
     }
-  }, [dispatch, isFetched]);
+
+    if (!isCartFetched) {
+      dispatch(getCartThunk());
+    }
+  }, [dispatch, isWishlistFetched, isCartFetched]);
   if (loading)
     return (
       <Container sx={{ py: 4 }}>

@@ -1,6 +1,10 @@
-import type { Product } from "../../features/products/products.types";
-import formatCurrency from "../../utils/formatCurrency";
+import { useAppDispatch } from "../../store";
+import { updateCartQuantityThunk } from "../../features/cart/cart.thunks";
+import { removeFromCartThunk } from "../../features/cart/cart.thunks";
 import { Link as RouterLink } from "react-router-dom";
+
+import formatCurrency from "../../utils/formatCurrency";
+
 import {
   Box,
   Card,
@@ -15,22 +19,50 @@ import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 
+import type { TCartItem } from "../../features/cart/cart.types";
+
 type CartItemProps = {
-  product: Product;
-  quantity: number;
+  item: TCartItem;
 };
 
-const CartItem = ({ product, quantity }: CartItemProps) => {
+const CartItem = ({ item }: CartItemProps) => {
+  const dispatch = useAppDispatch();
+  const handleIncrease = () => {
+    dispatch(
+      updateCartQuantityThunk({
+        productId: item.productId,
+        quantity: item.quantity + 1,
+      }),
+    );
+  };
+
+  const handleDecrease = () => {
+    if (item.quantity <= 1) {
+      dispatch(removeFromCartThunk(item.productId));
+      return;
+    }
+
+    dispatch(
+      updateCartQuantityThunk({
+        productId: item.productId,
+        quantity: item.quantity - 1,
+      }),
+    );
+  };
+
+  const handleRemove = () => {
+    dispatch(removeFromCartThunk(item.productId));
+  };
   return (
     <Card>
       <CardContent>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 3 }}>
-            <Box component={RouterLink} to={`/products/${product.id}`}>
+            <Box component={RouterLink} to={`/products/${item.productId}`}>
               <Box
                 component="img"
-                src={product.imageUrl}
-                alt={product.title}
+                src={item.product.imageUrl}
+                alt={item.product.title}
                 sx={{
                   width: "100%",
                   aspectRatio: "1 / 1",
@@ -44,19 +76,27 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
             <Stack spacing={2}>
               <Link
                 component={RouterLink}
-                to={`/products/${product.id}`}
+                to={`/products/${item.productId}`}
                 underline="hover"
                 color="inherit"
               >
-                <Typography variant="h6">{product.title}</Typography>
+                <Typography variant="h6">{item.product.title}</Typography>
               </Link>
-              <Typography>{formatCurrency(product.price)}</Typography>
-              <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
-                <IconButton color="primary" aria-label="Decrease quantity">
+              <Typography>{formatCurrency(item.product.price)}</Typography>
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                <IconButton
+                  color="primary"
+                  aria-label="Decrease quantity"
+                  onClick={handleDecrease}
+                >
                   <RemoveCircleRoundedIcon />
                 </IconButton>
-                <Typography>{quantity}</Typography>
-                <IconButton color="primary" aria-label="Increase quantity">
+                <Typography>{item.quantity}</Typography>
+                <IconButton
+                  color="primary"
+                  aria-label="Increase quantity"
+                  onClick={handleIncrease}
+                >
                   <AddCircleOutlinedIcon />
                 </IconButton>
               </Stack>
@@ -70,7 +110,11 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
               justifyContent: "flex-end",
             }}
           >
-            <IconButton color="error" aria-label="Remove item">
+            <IconButton
+              color="error"
+              aria-label="Remove item from cart"
+              onClick={handleRemove}
+            >
               <DeleteForeverRoundedIcon />
             </IconButton>
           </Grid>

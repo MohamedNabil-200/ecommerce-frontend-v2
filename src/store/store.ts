@@ -4,6 +4,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { productReducer } from "../features/products/products.slice";
 import { authReducer } from "../features/auth/auth.slice";
 import { wishlistReducer } from "../features/wishlist/wishlist.slice";
+import { cartReducer } from "../features/cart/cart.slice";
 
 const storedAuth = authStorage.loadAuth();
 const preloadedState = storedAuth
@@ -20,7 +21,8 @@ export const store = configureStore({
   reducer: {
     products: productReducer,
     auth: authReducer,
-    wishlist: wishlistReducer
+    wishlist: wishlistReducer,
+    cart: cartReducer,
   },
   preloadedState,
 });
