@@ -38,7 +38,11 @@ import {
   getWishlistThunk,
   removeFromWishlistThunk,
 } from "../features/wishlist/wishlist.thunks";
-import { selectIsCartFetched, selectIsProductInCart } from "../features/cart/cart.selectors";
+import {
+  selectAddToCartLoading,
+  selectIsCartFetched,
+  selectIsProductInCart,
+} from "../features/cart/cart.selectors";
 import { addToCartThunk, getCartThunk } from "../features/cart/cart.thunks";
 
 const ProductDetailsPage = () => {
@@ -55,6 +59,7 @@ const ProductDetailsPage = () => {
   const isWishlistFetched = useAppSelector(selectWishlistFetched);
   const isInCart = useAppSelector(selectIsProductInCart(productId));
   const isCartFetched = useAppSelector(selectIsCartFetched);
+  const isAddingToCart = useAppSelector(selectAddToCartLoading);
 
   const handleWishlistClick = () => {
     if (!isWishlistFetched) return;
@@ -66,7 +71,7 @@ const ProductDetailsPage = () => {
   };
 
   const handleCartClick = () => {
-    if (!isCartFetched) return;
+    if (!isCartFetched || isInCart || isAddingToCart || !isInStock) return;
     dispatch(addToCartThunk(productId));
   };
 
@@ -151,7 +156,9 @@ const ProductDetailsPage = () => {
             <Stack direction="row" spacing={2}>
               <Button
                 variant="contained"
-                disabled={!isInStock || !isCartFetched || isInCart}
+                disabled={
+                  !isInStock || !isCartFetched || isInCart || isAddingToCart
+                }
                 fullWidth
                 onClick={handleCartClick}
                 aria-label="Add to cart"

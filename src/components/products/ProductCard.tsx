@@ -22,6 +22,7 @@ import {
   selectWishlistFetched,
 } from "../../features/wishlist/wishlist.selectors";
 import {
+  selectAddToCartLoading,
   selectIsCartFetched,
   selectIsProductInCart,
 } from "../../features/cart/cart.selectors";
@@ -44,6 +45,7 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
 
   const isInCart = useAppSelector(selectIsProductInCart(product.id));
   const isCartFetched = useAppSelector(selectIsCartFetched);
+  const isAddingToCart = useAppSelector(selectAddToCartLoading);
 
   const handleWishlistClick = () => {
     if (!isWishlistFetched) return;
@@ -55,7 +57,8 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   };
 
   const handleAddToCart = () => {
-    if (!isCartFetched || isInCart || product.stock <= 0) return;
+    if (!isCartFetched || isInCart || isAddingToCart || product.stock <= 0)
+      return;
 
     dispatch(addToCartThunk(product.id));
   };
@@ -114,7 +117,7 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
         <IconButton
           aria-label={isInCart ? "Product already in cart" : "Add to cart"}
           onClick={handleAddToCart}
-          disabled={!isCartFetched || isInCart || product.stock <= 0}
+          disabled={!isCartFetched || isInCart || isAddingToCart ||product.stock <= 0}
         >
           {isInCart ? (
             <ShoppingCartIcon color="success" />

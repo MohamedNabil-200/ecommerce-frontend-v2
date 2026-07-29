@@ -12,8 +12,9 @@ export function createApiThunk<Returned, ThunkArg = void>(
         return await payloadCreator(arg);
       } catch (error) {
         if (axios.isAxiosError(error)) {
+          const message = error.response?.data.message;
           return rejectWithValue(
-            error.response?.data.message ?? "Something went wrong",
+            typeof message === "string" ? message : "Something went wrong",
           );
         }
 

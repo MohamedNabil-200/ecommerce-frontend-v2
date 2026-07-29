@@ -13,6 +13,7 @@ import formatCurrency from "../../utils/formatCurrency";
 import type { TWishlistItem } from "../../features/wishlist/wishlist.types";
 import { addToCartThunk } from "../../features/cart/cart.thunks";
 import {
+  selectAddToCartLoading,
   selectIsCartFetched,
   selectIsProductInCart,
 } from "../../features/cart/cart.selectors";
@@ -25,13 +26,15 @@ const WishlistItem = ({ item }: WishlistItemProps) => {
   const dispatch = useAppDispatch();
   const isCartFetched = useAppSelector(selectIsCartFetched);
   const isInCart = useAppSelector(selectIsProductInCart(item.productId));
+  const isAddingToCart = useAppSelector(selectAddToCartLoading);
 
   const handleRemove = () => {
     dispatch(removeFromWishlistThunk(item.productId));
   };
 
   const handleAddToCart = () => {
-    if (!isCartFetched || isInCart) return;
+    if (!isCartFetched || isInCart || isAddingToCart || item.product.stock <= 0)
+      return;
 
     dispatch(addToCartThunk(item.productId));
   };
@@ -75,7 +78,12 @@ const WishlistItem = ({ item }: WishlistItemProps) => {
                 variant="contained"
                 fullWidth
                 onClick={handleAddToCart}
-                disabled={!isCartFetched || isInCart}
+                disabled={
+                  !isCartFetched ||
+                  isInCart ||
+                  isAddingToCart ||
+                  item.product.stock <= 0
+                }
               >
                 Add to cart
               </Button>
