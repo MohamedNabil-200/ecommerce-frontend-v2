@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { useNavigate } from "react-router-dom";
+
 import {
   Button,
   Card,
@@ -11,10 +15,16 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+
 import formatCurrency from "../../utils/formatCurrency";
-import { useState } from "react";
-import { useAppDispatch } from "../../store";
-import { clearCartThunk } from "../../features/cart/cart.thunks";
+
+import { clearCartThunk, getCartThunk } from "../../features/cart/cart.thunks";
+import {
+  getOrdersThunk,
+  placeOrderThunk,
+} from "../../features/orders/orders.thunks";
+
+import { selectPlaceOrderLoading } from "../../features/orders/orders.selectors";
 
 type OrderSummaryCardProps = {
   subtotal: number;
@@ -27,8 +37,12 @@ const OrderSummaryCard = ({
   shipping,
   total,
 }: OrderSummaryCardProps) => {
-  const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
+
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const isPlacingOrder = useAppSelector(selectPlaceOrderLoading);
 
   const handleClearCart = async () => {
     try {
@@ -36,6 +50,19 @@ const OrderSummaryCard = ({
       setOpen(false);
     } catch {
       // surface error to the user (e.g. toast/snackbar) instead of closing silently
+    }
+  };
+  const handleCheckout = async () => {
+    try {
+      await dispatch(placeOrderThunk()).unwrap();
+      await Promise.all([
+        dispatch(getOrdersThunk()).unwrap(),
+        dispatch(getCartThunk()).unwrap(),
+      ]);
+
+      navigate("/orders");
+    } catch {
+      // Snackbar
     }
   };
   return (
@@ -72,6 +99,8 @@ const OrderSummaryCard = ({
             aria-label="Proceed to checkout"
             variant="contained"
             fullWidth
+            disabled={isPlacingOrder}
+            onClick={handleCheckout}
           >
             Proceed to Checkout
           </Button>

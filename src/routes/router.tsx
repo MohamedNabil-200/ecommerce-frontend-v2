@@ -13,6 +13,8 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import WishlistPage from "../pages/WishlistPage";
 import CartPage from "../pages/CartPage";
 import ProtectedRoutes from "../components/auth/ProtectedRoutes";
+import OrdersPage from "../pages/OrdersPage";
+import OrderDetailsPage from "../pages/OrderDetailsPage";
 
 const Router = () => {
   return (
@@ -26,6 +28,8 @@ const Router = () => {
           <Route element={<ProtectedRoutes />}>
             <Route path="wishlist" element={<WishlistPage />} />
             <Route path="cart" element={<CartPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:id" element={<OrderDetailsPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Route>
