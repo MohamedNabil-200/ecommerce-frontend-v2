@@ -5,6 +5,7 @@ import {
   getOrderDetailsThunk,
 } from "./orders.thunks";
 import type { OrdersState } from "./orders.types";
+import { logout } from "../auth/auth.slice";
 
 const initialState: OrdersState = {
   items: [],
@@ -29,6 +30,7 @@ export const ordersSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
     // Place Order
     builder.addCase(placeOrderThunk.pending, (state) => {
       state.placeOrder.loading = true;
@@ -58,6 +60,7 @@ export const ordersSlice = createSlice({
     });
     builder.addCase(getOrdersThunk.rejected, (state, action) => {
       state.getOrders.loading = false;
+      state.isFetched = false;
       state.getOrders.error =
         typeof action.payload === "string"
           ? action.payload
