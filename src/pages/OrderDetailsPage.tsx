@@ -30,6 +30,7 @@ const OrderDetailsPage = () => {
   const order = useAppSelector(selectSelectedOrder);
   const loading = useAppSelector(selectGetOrderDetailsLoading);
   const error = useAppSelector(selectGetOrderDetailsError);
+  const isStale = !order || order.id !== orderId;
 
   useEffect(() => {
     if (!Number.isNaN(orderId)) {
@@ -41,7 +42,7 @@ const OrderDetailsPage = () => {
     return <Navigate to="/orders" replace />;
   }
 
-  if (loading)
+  if (loading || (isStale && !error))
     return (
       <Container sx={{ py: 2 }}>
         <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
@@ -61,7 +62,7 @@ const OrderDetailsPage = () => {
       </Container>
     );
 
-  if (!order)
+  if (isStale)
     return (
       <Container sx={{ py: 2 }}>
         <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
@@ -80,7 +81,7 @@ const OrderDetailsPage = () => {
       <Typography>
         Created At: {new Date(order.createdAt).toLocaleDateString()}
       </Typography>
-      
+
       <Typography>
         Subtotal: {formatCurrency(Number(order.subtotal))}
       </Typography>
