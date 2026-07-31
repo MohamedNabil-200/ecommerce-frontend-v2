@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 
-import {Link as RouterLink} from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import {
   selectGetOrdersError,
@@ -12,8 +12,21 @@ import {
 
 import { getOrdersThunk } from "../features/orders/orders.thunks";
 
-import { Alert, Button, Card, Container, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
+import type { ChipPropsColorOverrides } from "@mui/material";
+import type { OverridableStringUnion } from "@mui/types";
 import formatCurrency from "../utils/formatCurrency";
+import OrdersEmptyState from "../components/orders/OrdersEmptyState";
 
 const OrdersPage = () => {
   const dispatch = useAppDispatch();
@@ -22,6 +35,24 @@ const OrdersPage = () => {
   const loading = useAppSelector(selectGetOrdersLoading);
   const error = useAppSelector(selectGetOrdersError);
   const isFetched = useAppSelector(selectOrdersFetched);
+
+  const statusColorMap: Record<
+    string,
+    OverridableStringUnion<
+      | "warning"
+      | "success"
+      | "error"
+      | "info"
+      | "default"
+      | "primary"
+      | "secondary",
+      ChipPropsColorOverrides
+    >
+  > = {
+    PENDING: "warning",
+    COMPLETED: "success",
+    CANCELLED: "error",
+  };
 
   useEffect(() => {
     if (!isFetched) {
@@ -35,7 +66,22 @@ const OrdersPage = () => {
         <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
           Orders
         </Typography>
-        <Typography>Loading Orders...</Typography>
+        <Stack spacing={2}>
+          {[1, 2, 3].map((item) => (
+            <Card key={item}>
+              <CardContent>
+                <Stack spacing={2}>
+                  <Skeleton variant="text" width="40%" height={35} />
+                  <Skeleton variant="text" width="30%" />
+                  <Skeleton variant="text" width="50%" />
+                  <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+                    <Skeleton variant="rounded" width={120} height={36} />
+                  </Stack>
+                </Stack>
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
       </Container>
     );
 
@@ -55,7 +101,7 @@ const OrdersPage = () => {
         <Typography variant="h4" sx={{ textAlign: "center", mb: 4 }}>
           Orders
         </Typography>
-        <Typography>You don't have any orders yet.</Typography>
+        <OrdersEmptyState />
       </Container>
     );
   return (
@@ -64,16 +110,53 @@ const OrdersPage = () => {
         Orders
       </Typography>
       {orders.map((order) => (
-        <Card key={order.id}>
-          <Typography>Order #{order.id}</Typography>
-          <Typography>{order.status}</Typography>
-          <Typography>{formatCurrency(order.subtotal)}</Typography>
-          <Typography>
-            {new Date(order.createdAt).toLocaleDateString()}
-          </Typography>
-          <Button component={RouterLink} to={`/orders/${order.id}`}>
-            View Details
-          </Button>{" "}
+        <Card
+          key={order.id}
+          sx={{
+            mb: 2,
+            transition: "0.2s ease",
+            "&:hover": {
+              boxShadow: 6,
+            },
+          }}
+        >
+          <CardContent>
+            {/* Header */}
+            <Stack
+              direction="row"
+              sx={{ justifyContent: "space-between", alignItems: "center" }}
+            >
+              <Typography>Order #{order.id}</Typography>
+              <Chip
+                label={order.status}
+                color={statusColorMap[order.status] ?? "default"}
+              />
+            </Stack>
+
+            {/* Metadata */}
+            <Stack spacing={0.5}>
+              <Typography variant="body2" color="textSecondary">
+                {new Date(order.createdAt).toLocaleDateString()}
+              </Typography>
+
+              <Typography variant="body2">
+                {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                {" • "}
+                {formatCurrency(Number(order.subtotal))}
+              </Typography>
+            </Stack>
+
+            {/* Footer */}
+            <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+              <Button
+                component={RouterLink}
+                to={`/orders/${order.id}`}
+                variant="text"
+              >
+                View Details →
+              </Button>
+            </Stack>
+          </CardContent>
         </Card>
       ))}
     </Container>

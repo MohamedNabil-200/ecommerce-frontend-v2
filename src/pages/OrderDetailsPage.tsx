@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store";
 
+import { Link as RouterLink } from "react-router-dom";
+
 import {
   selectGetOrderDetailsError,
   selectGetOrderDetailsLoading,
@@ -12,6 +14,7 @@ import { getOrderDetailsThunk } from "../features/orders/orders.thunks";
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Container,
@@ -20,6 +23,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+
 import formatCurrency from "../utils/formatCurrency";
 
 const OrderDetailsPage = () => {
@@ -31,6 +36,10 @@ const OrderDetailsPage = () => {
   const loading = useAppSelector(selectGetOrderDetailsLoading);
   const error = useAppSelector(selectGetOrderDetailsError);
   const isStale = !order || order.id !== orderId;
+
+  const subtotal = Number(order?.subtotal);
+  const shipping = 20;
+  const total = subtotal + shipping;
 
   useEffect(() => {
     if (!Number.isNaN(orderId)) {
@@ -74,12 +83,30 @@ const OrderDetailsPage = () => {
 
   return (
     <Container sx={{ py: 2 }}>
-      <Typography>Order #{order.id}</Typography>
-
-      <Typography>Status: {order.status}</Typography>
+      {/* Header */}
+      <Button
+        component={RouterLink}
+        to="/orders"
+        startIcon={<ArrowBackRoundedIcon />}
+        sx={{ mb: 3 }}
+        aria-label="Back to orders"
+      >
+        Back to Orders
+      </Button>
+      <Stack spacing={2} sx={{ mb: 4 }}>
+        <Stack
+          direction="row"
+          sx={{ justifyContent: "space-between", alignItems: "center" }}
+        >
+          <Typography variant="h4" sx={{ fontWeight: 600 }}>
+            Order #{order.id}
+          </Typography>
+          <Typography>Status: {order.status}</Typography>
+        </Stack>
+      </Stack>
 
       <Typography>
-        Created At: {new Date(order.createdAt).toLocaleDateString()}
+        Placed on {new Date(order.createdAt).toLocaleDateString()}
       </Typography>
 
       <Typography>
@@ -88,46 +115,89 @@ const OrderDetailsPage = () => {
 
       <Divider sx={{ my: 3 }} />
 
-      <Stack spacing={2}>
-        {order.items.map((item) => (
-          <Card key={item.id}>
+      <Grid container spacing={4}>
+        {/* Product Card */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Stack spacing={2}>
+            {order.items.map((item) => (
+              <Card key={item.id}>
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, md: 2 }}>
+                      <Box
+                        component="img"
+                        src={item.product.imageUrl}
+                        alt={item.product.title}
+                        sx={{
+                          width: "100%",
+                          aspectRatio: "1 / 1",
+                          objectFit: "cover",
+                          borderRadius: 1,
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 10 }}>
+                      <Stack spacing={1}>
+                        <Typography variant="h6">
+                          {item.product.title}
+                        </Typography>
+
+                        <Typography color="textSecondary">
+                          {formatCurrency(Number(item.price))}
+                        </Typography>
+
+                        <Typography>Quantity: {item.quantity}</Typography>
+
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          Line Total:{" "}
+                          {formatCurrency(Number(item.price) * item.quantity)}
+                        </Typography>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        </Grid>
+
+        {/* Order Summary */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ position: "sticky", top: 24 }}>
             <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 2 }}>
-                  <Box
-                    component="img"
-                    src={item.product.imageUrl}
-                    alt={item.product.title}
-                    sx={{
-                      width: "100%",
-                      aspectRatio: "1 / 1",
-                      objectFit: "cover",
-                      borderRadius: 1,
-                    }}
-                  />
-                </Grid>
+              <Stack spacing={2}>
+                <Typography variant="h5">Order Summary</Typography>
 
-                <Grid size={{ xs: 12, md: 10 }}>
-                  <Stack spacing={1}>
-                    <Typography variant="h6">{item.product.title}</Typography>
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography>Subtotal</Typography>
 
-                    <Typography>
-                      Price: {formatCurrency(Number(item.price))}
-                    </Typography>
+                  <Typography>{formatCurrency(subtotal)}</Typography>
+                </Stack>
 
-                    <Typography>Quantity: {item.quantity}</Typography>
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography>Shipping</Typography>
 
-                    <Typography sx={{ fontWeight: 600 }}>
-                      Total:{" "}
-                      {formatCurrency(Number(item.price) * item.quantity)}
-                    </Typography>
-                  </Stack>
-                </Grid>
-              </Grid>
+                  <Typography>{formatCurrency(shipping)}</Typography>
+                </Stack>
+
+                <Divider />
+
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography sx={{ fontWeight: 600 }}>Total</Typography>
+
+                  <Typography sx={{ fontWeight: 600 }}>
+                    {formatCurrency(total)}
+                  </Typography>
+                </Stack>
+              </Stack>
             </CardContent>
           </Card>
-        ))}
-      </Stack>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
