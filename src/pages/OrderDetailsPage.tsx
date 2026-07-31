@@ -32,10 +32,6 @@ const OrderDetailsPage = () => {
   const error = useAppSelector(selectGetOrderDetailsError);
   const isStale = !order || order.id !== orderId;
 
-  const subtotal = Number(order?.subtotal);
-  const shipping = 20;
-  const total = subtotal + shipping;
-
   useEffect(() => {
     if (!Number.isNaN(orderId)) {
       dispatch(getOrderDetailsThunk(orderId));
@@ -78,21 +74,12 @@ const OrderDetailsPage = () => {
 
   return (
     <Container sx={{ py: 2 }}>
-      {/* Header */}
-      <Stack spacing={2} sx={{ mb: 4 }}>
-        <Stack
-          direction="row"
-          sx={{ justifyContent: "space-between", alignItems: "center" }}
-        >
-          <Typography variant="h4" sx={{ fontWeight: 600 }}>
-            Order #{order.id}
-          </Typography>
-          <Typography>Status: {order.status}</Typography>
-        </Stack>
-      </Stack>
+      <Typography>Order #{order.id}</Typography>
+
+      <Typography>Status: {order.status}</Typography>
 
       <Typography>
-        Placed on {new Date(order.createdAt).toLocaleDateString()}
+        Created At: {new Date(order.createdAt).toLocaleDateString()}
       </Typography>
 
       <Typography>
@@ -101,89 +88,46 @@ const OrderDetailsPage = () => {
 
       <Divider sx={{ my: 3 }} />
 
-      <Grid container spacing={4}>
-        {/* Product Card */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Stack spacing={2}>
-            {order.items.map((item) => (
-              <Card key={item.id}>
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 2 }}>
-                      <Box
-                        component="img"
-                        src={item.product.imageUrl}
-                        alt={item.product.title}
-                        sx={{
-                          width: "100%",
-                          aspectRatio: "1 / 1",
-                          objectFit: "cover",
-                          borderRadius: 1,
-                        }}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 10 }}>
-                      <Stack spacing={1}>
-                        <Typography variant="h6">
-                          {item.product.title}
-                        </Typography>
-
-                        <Typography color="textSecondary">
-                          {formatCurrency(Number(item.price))}
-                        </Typography>
-
-                        <Typography>Quantity: {item.quantity}</Typography>
-
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          Line Total:{" "}
-                          {formatCurrency(Number(item.price) * item.quantity)}
-                        </Typography>
-                      </Stack>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            ))}
-          </Stack>
-        </Grid>
-
-        {/* Order Summary */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ position: "sticky", top: 24 }}>
+      <Stack spacing={2}>
+        {order.items.map((item) => (
+          <Card key={item.id}>
             <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h5">Order Summary</Typography>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 2 }}>
+                  <Box
+                    component="img"
+                    src={item.product.imageUrl}
+                    alt={item.product.title}
+                    sx={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      objectFit: "cover",
+                      borderRadius: 1,
+                    }}
+                  />
+                </Grid>
 
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography>Subtotal</Typography>
+                <Grid size={{ xs: 12, md: 10 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="h6">{item.product.title}</Typography>
 
-                  <Typography>{formatCurrency(subtotal)}</Typography>
-                </Stack>
+                    <Typography>
+                      Price: {formatCurrency(Number(item.price))}
+                    </Typography>
 
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography>Shipping</Typography>
+                    <Typography>Quantity: {item.quantity}</Typography>
 
-                  <Typography>{formatCurrency(shipping)}</Typography>
-                </Stack>
-
-                <Divider />
-
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography sx={{ fontWeight: 600 }}>Total</Typography>
-
-                  <Typography sx={{ fontWeight: 600 }}>
-                    {formatCurrency(total)}
-                  </Typography>
-                </Stack>
-              </Stack>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      Total:{" "}
+                      {formatCurrency(Number(item.price) * item.quantity)}
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        ))}
+      </Stack>
     </Container>
   );
 };
