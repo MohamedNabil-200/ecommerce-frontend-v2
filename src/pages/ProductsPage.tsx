@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useNavigate } from "react-router-dom";
-import { fetchProducts } from "../features/products/products.slice";
+import { fetchProductsThunk } from "../features/products/products.thunks";
 import {
   selectProductsLoading,
   selectProductsError,
@@ -26,7 +26,7 @@ const ProductsPage = () => {
   const isCartFetched = useAppSelector(selectIsCartFetched);
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProductsThunk());
   }, [dispatch]);
 
   useEffect(() => {

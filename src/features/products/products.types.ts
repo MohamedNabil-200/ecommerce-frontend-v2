@@ -13,6 +13,7 @@ export type Product = {
 export type ProductState = {
   products: Product[];
   selectedProduct: Product | null;
+  isFetched: boolean;
   list: {
     loading: boolean;
     error: string | null;
