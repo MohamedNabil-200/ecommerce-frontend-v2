@@ -12,10 +12,8 @@ import {
   selectIsProductInWishlist,
   selectWishlistFetched,
 } from "../features/wishlist/wishlist.selectors";
-import {
-  fetchProductById,
-  setSelectedProduct,
-} from "../features/products/products.slice";
+import { setSelectedProduct } from "../features/products/products.slice";
+import { fetchProductByIdThunk } from "../features/products/products.thunks";
 
 import formatCurrency from "../utils/formatCurrency";
 
@@ -49,14 +47,18 @@ const ProductDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const productId = Number(id);
   const dispatch = useAppDispatch();
+
   const products = useAppSelector(selectProducts);
   const loading = useAppSelector(selectProductLoading);
   const error = useAppSelector(selectProductError);
+
   const selectedProduct = useAppSelector(selectSelectedProduct);
   const existingProduct = products.find((product) => product.id === productId);
   const isInStock = (selectedProduct?.stock ?? 0) > 0;
+
   const isInWishlist = useAppSelector(selectIsProductInWishlist(productId));
   const isWishlistFetched = useAppSelector(selectWishlistFetched);
+
   const isInCart = useAppSelector(selectIsProductInCart(productId));
   const isCartFetched = useAppSelector(selectIsCartFetched);
   const isAddingToCart = useAppSelector(selectAddToCartLoading);
@@ -81,7 +83,7 @@ const ProductDetailsPage = () => {
     if (existingProduct) {
       dispatch(setSelectedProduct(existingProduct));
     } else {
-      dispatch(fetchProductById(productId));
+      dispatch(fetchProductByIdThunk(productId));
     }
 
     if (!isWishlistFetched) {
