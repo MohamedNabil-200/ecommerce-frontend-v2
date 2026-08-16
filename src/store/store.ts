@@ -6,6 +6,7 @@ import { authReducer } from "../features/auth/auth.slice";
 import { wishlistReducer } from "../features/wishlist/wishlist.slice";
 import { cartReducer } from "../features/cart/cart.slice";
 import { ordersReducer } from "../features/orders/orders.slice";
+import { categoryReducer } from "../features/categories/categories.slice";
 
 const storedAuth = authStorage.loadAuth();
 const preloadedState = storedAuth
@@ -25,6 +26,7 @@ export const store = configureStore({
     wishlist: wishlistReducer,
     cart: cartReducer,
     orders: ordersReducer,
+    categories: categoryReducer
   },
   preloadedState,
 });
